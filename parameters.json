@@ -1,0 +1,69 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "databaseAccountName": {
+            "value": "mrcosmos"
+        },
+        "consistencyLevel": {
+            "value": "Session"
+        },
+        "maxStalenessPrefix": {
+            "value": 10
+        },
+        "maxIntervalInSeconds": {
+            "value": 5
+        },
+        "sqlServerAdminLogin": {
+            "value": "MrSQL"
+        },
+        "sqlServerAdminLoginPassword": {
+            "value": "aaa!@#012"
+        },
+        "sqlDatabaseName": {
+            "value": "samples"
+        },
+        "sqlDatabaseCollation": {
+            "value": "SQL_Latin1_General_CP1_CI_AS"
+        },
+        "sqlDatabaseEdition": {
+            "value": "Basic"
+        },
+        "sqldatabaseRequestedServiceObjectiveName": {
+            "value": "Basic"
+        },
+        "webAppName": {
+            "value": "app-sqlcosmos-001"
+        },
+        "webAppSKU": {
+            "value": "F1"
+        },
+        "workerSize": {
+            "value": "0"
+        },
+        "storageAccountType": {
+            "value": "Standard_LRS"
+        },
+        "azureSearchname": {
+            "value": "srch-sqlcosmos-001"
+        },
+        "azureSearchSku": {
+            "value": "free"
+        },
+        "azureSearchReplicaCount": {
+            "value": 1
+        },
+        "azureSearchPartitionCount": {
+            "value": 1
+        },
+        "documentDBOfferType": {
+            "value": "Standard"
+        },
+        "location": {
+            "value": "eastus"
+        },
+        "insightsLocation": {
+            "value": "eastus"
+        }
+    }
+}

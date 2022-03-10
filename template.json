@@ -1,0 +1,372 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "databaseAccountName": {
+            "minLength": 3,
+            "type": "String",
+            "metadata": {
+                "description": "The Azure Cosmos DB database account name."
+            }
+        },
+        "consistencyLevel": {
+            "defaultValue": "Session",
+            "allowedValues": [
+                "Eventual",
+                "Strong",
+                "Session",
+                "BoundedStaleness"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "The Azure Cosmos DB default consistency level for this account."
+            }
+        },
+        "maxStalenessPrefix": {
+            "defaultValue": 10,
+            "minValue": 10,
+            "maxValue": 1000,
+            "type": "Int",
+            "metadata": {
+                "description": "When consistencyLevel is set to BoundedStaleness, then this value is required, otherwise it can be ignored."
+            }
+        },
+        "maxIntervalInSeconds": {
+            "defaultValue": 5,
+            "minValue": 5,
+            "maxValue": 600,
+            "type": "Int",
+            "metadata": {
+                "description": "When consistencyLevel is set to BoundedStaleness, then this value is required, otherwise it can be ignored."
+            }
+        },
+        "sqlServerAdminLogin": {
+            "minLength": 1,
+            "type": "String",
+            "metadata": {
+                "description": "The SQL server admin username."
+            }
+        },
+        "sqlServerAdminLoginPassword": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "The SQL server admin password"
+            }
+        },
+        "sqlDatabaseName": {
+            "minLength": 1,
+            "type": "String",
+            "metadata": {
+                "description": "The SQL database name"
+            }
+        },
+        "sqlDatabaseCollation": {
+            "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+            "minLength": 1,
+            "type": "String",
+            "metadata": {
+                "description": "The SQL database collation"
+            }
+        },
+        "sqlDatabaseEdition": {
+            "defaultValue": "Basic",
+            "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "The SQL server edition"
+            }
+        },
+        "sqldatabaseRequestedServiceObjectiveName": {
+            "defaultValue": "Basic",
+            "allowedValues": [
+                "Basic",
+                "S0",
+                "S1",
+                "S2",
+                "P1",
+                "P2",
+                "P3"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Describes the performance level for Edition"
+            }
+        },
+        "webAppName": {
+            "minLength": 1,
+            "type": "String",
+            "metadata": {
+                "description": "The name of the Web App"
+            }
+        },
+        "webAppSKU": {
+            "defaultValue": "F1",
+            "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "S1"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "The Web App pricing tier"
+            }
+        },
+        "workerSize": {
+            "defaultValue": "0",
+            "allowedValues": [
+                "0",
+                "1",
+                "2"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "The Web App worker size"
+            }
+        },
+        "storageAccountType": {
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_ZRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Premium_LRS"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "The storage account type"
+            }
+        },
+        "azureSearchname": {
+            "type": "String",
+            "metadata": {
+                "description": "The azure search instance name"
+            }
+        },
+        "azureSearchSku": {
+            "defaultValue": "free",
+            "allowedValues": [
+                "free",
+                "standard",
+                "standard2"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "The azure search instance tier."
+            }
+        },
+        "azureSearchReplicaCount": {
+            "defaultValue": 1,
+            "allowedValues": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "type": "Int",
+            "metadata": {
+                "description": "The number of search replicas"
+            }
+        },
+        "azureSearchPartitionCount": {
+            "defaultValue": 1,
+            "allowedValues": [
+                1,
+                2,
+                3,
+                4,
+                6,
+                12
+            ],
+            "type": "Int",
+            "metadata": {
+                "description": "The number of search partitions"
+            }
+        },
+        "documentDBOfferType": {
+            "defaultValue": "Standard",
+            "allowedValues": [
+                "Standard"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "The Azure Cosmos DB offer type"
+            }
+        },
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "String",
+            "metadata": {
+                "description": "Location for all resources."
+            }
+        },
+        "insightsLocation": {
+            "type": "String",
+            "metadata": {
+                "description": "Location for Insights."
+            }
+        }
+    },
+    "variables": {
+        "sqlServerName": "[concat(uniquestring(resourceGroup().id), 'sqlserver')]",
+        "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'storage')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2020-09-01",
+            "name": "[parameters('databaseAccountName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "DocumentDB"
+            },
+            "properties": {
+                "name": "[parameters('databaseAccountName')]",
+                "databaseAccountOfferType": "[parameters('documentDBOfferType')]",
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "[parameters('consistencyLevel')]",
+                    "maxStalenessPrefix": "[parameters('maxStalenessPrefix')]",
+                    "maxIntervalInSeconds": "[parameters('maxIntervalInSeconds')]"
+                },
+                "locations": [
+                    {
+                        "locationName": "[parameters('location')]",
+                        "failoverPriority": 0
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2020-11-01-preview",
+            "name": "[variables('sqlServerName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "SQL Server"
+            },
+            "properties": {
+                "administratorLogin": "[parameters('sqlServerAdminLogin')]",
+                "administratorLoginPassword": "[parameters('sqlServerAdminLoginPassword')]",
+                "version": "12.0"
+            },
+            "resources": [
+                {
+                    "type": "firewallrules",
+                    "apiVersion": "2020-11-01-preview",
+                    "name": "AllowAllWindowsAzureIps",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+                    ],
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "0.0.0.0"
+                    }
+                },
+                {
+                    "type": "databases",
+                    "apiVersion": "2020-11-01-preview",
+                    "name": "[parameters('sqlDatabaseName')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[variables('sqlServerName')]"
+                    ],
+                    "tags": {
+                        "displayName": "SQL Database"
+                    },
+                    "properties": {
+                        "collation": "[parameters('sqlDatabaseCollation')]",
+                        "edition": "[parameters('sqlDatabaseEdition')]",
+                        "maxSizeBytes": "1073741824",
+                        "requestedServiceObjectiveName": "[parameters('sqldatabaseRequestedServiceObjectiveName')]"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2020-12-01",
+            "name": "[parameters('webAppName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "App Service Plan"
+            },
+            "sku": {
+                "name": "[parameters('webAppSKU')]"
+            },
+            "properties": {
+                "name": "[parameters('webAppName')]",
+                "workerSize": "[parameters('workerSize')]",
+                "numberOfWorkers": 1
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2020-12-01",
+            "name": "[parameters('webAppName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('webAppName'))]"
+            ],
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('webAppName'))]": "Resource",
+                "displayName": "Web App"
+            },
+            "properties": {
+                "name": "[parameters('webAppName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('webAppName'))]"
+            },
+            "resources": []
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-02-01",
+            "name": "[variables('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "Storage Account"
+            },
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            }
+        },
+        {
+            "type": "Microsoft.Search/searchServices",
+            "apiVersion": "2020-08-01",
+            "name": "[parameters('azureSearchname')]",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "Azure Search"
+            },
+            "sku": {
+                "name": "[parameters('azureSearchsku')]"
+            },
+            "properties": {
+                "replicaCount": "[parameters('azureSearchreplicaCount')]",
+                "partitionCount": "[parameters('azureSearchpartitionCount')]"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2020-02-02-preview",
+            "name": "appinsights",
+            "location": "[parameters('insightsLocation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+            ],
+            "tags": {
+                "displayName": "Application Insights"
+            },
+            "properties": {
+                "applicationId": "[parameters('webAppName')]"
+            }
+        }
+    ]
+}

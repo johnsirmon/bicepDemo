@@ -18,7 +18,7 @@
             "value": "MrSQL"
         },
         "sqlServerAdminLoginPassword": {
-            "value": "aaa!@#012"
+            "value": "xxxxxxx "
         },
         "sqlDatabaseName": {
             "value": "samples"
